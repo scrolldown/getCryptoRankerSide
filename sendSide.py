@@ -127,21 +127,15 @@ def compareRawData(df_raw, df_api):
     s3.Object(bucket, s3_recent_csv).put(Body=csv_buffer.getvalue())
     # ---------
 
-
-    # 데이터 비교를 위해 어차피 다른 timestamp는 drop
-    df_recent_withoutTimestamp=df_recent_tmp.drop('timestamp', axis=1)
-    df_api_withoutTimestamp=df_api.drop('timestamp', axis=1)
-
-
     # 데이터 비교 후 다른게 하나라도 있으면 해당 행 concat
     df_changedData=pd.DataFrame()
-
-    # sideDiffList = side가 달라진애들 따로 모아서 telegram 전송할거임
-    df_changedSide=pd.DataFrame()
+    
+    df_changedSide=pd.DataFrame() # sideDiffList = side가 달라진애들 따로 모아서 telegram 전송할거임
 
     for i in range(len(df_api)):
+        # 데이터 비교를 위해 어차피 다른 timestamp는 drop
         # df_api_tmp => df_recent의 i번째 행의 name과 같은 df_api 데이터를 비교를 위해 선언
-        df_api_tmp = df_api[ df_api['name']==df_recent_withoutTimestamp.loc[i,'name'] ].drop('timestamp', axis=1)
+        df_api_tmp = df_api[ df_api['name']==df_recent_tmp.loc[i,'name'] ].drop('timestamp', axis=1)
         isSameData = df_recent_tmp.drop('timestamp', axis=1).iloc[i]==df_api_tmp # series bool
         
         if isSameData.values.sum()!=5:
